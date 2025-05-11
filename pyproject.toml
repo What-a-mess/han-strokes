@@ -1,0 +1,9 @@
+[project]
+name = "han-strokes"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.7, <=3.9.22"
+dependencies = [
+    "pyqt5-tools>=5.15.9.3.3",
+]
