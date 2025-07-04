@@ -4,6 +4,10 @@ import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+from PIL import Image
+import io
 
 from common import Storage, Character
 from core.composor import get_character_svg_at_index, get_character_svgs_in_range
@@ -237,6 +241,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.strokePreview.fitInView(svg_item, Qt.KeepAspectRatio)
         
     def start_process(self):
+        dpi = 36
+        
         # 获取当前字符列表
         character_list = self.get_cur_character_list()
         if not character_list:
@@ -264,9 +270,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             char_output_dir = os.path.join(output_dir, character)
             os.makedirs(char_output_dir, exist_ok=True)
             for i, svg in enumerate(svgs):
-                svg_file_path = os.path.join(char_output_dir, f"{i + 1}.svg")
-                with open(svg_file_path, "w", encoding="utf-8") as file:
-                    file.write(svg)
+                # 使用 svglib 将 SVG 转换为 ReportLab 图形
+                drawing = svg2rlg(io.StringIO(svg))
+                # 使用 ReportLab 的 renderPM 将图形渲染为 PIL 图像
+                pil_image = renderPM.drawToPIL(drawing, dpi=dpi)
+                if pil_image.mode == 'RGBA':
+                    pil_image = pil_image.convert('RGB')
+                    
+                output_tiff_path = os.path.join(char_output_dir, f"{i + 1}.tif")
+                pil_image.save(output_tiff_path, format='TIFF', dpi=(dpi, dpi))
+                
+                # svg_file_path = os.path.join(char_output_dir, f"{i + 1}.svg")
+                # with open(svg_file_path, "w", encoding="utf-8") as file:
+                #     file.write(svg)
             
         # 更新进度条
         self.progressBar.setValue(100)
@@ -288,29 +304,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             "border_color": (
                 self.config.get("borderColor", "#000000")
                 if self.borderVisibility.isChecked()
-                else "#00000000"
+                else "#FFFFFF00"
             ),
             "border_width": int(self.config.get("borderWidth", "2")),
             "grid_colors": [
                 (
                     self.config.get("gridColor1", "#DDDDDD")
                     if self.gridVisibility1.isChecked()
-                    else "#00000000"
+                    else "#FFFFFF00"
                 ),
                 (
                     self.config.get("gridColor1", "#DDDDDD")
                     if self.gridVisibility1.isChecked()
-                    else "#00000000"
+                    else "#FFFFFF00"
                 ),
                 (
                     self.config.get("gridColor2", "#DDDDDD")
                     if self.gridVisibility2.isChecked()
-                    else "#00000000"
+                    else "#FFFFFF00"
                 ),
                 (
                     self.config.get("gridColor2", "#DDDDDD")
                     if self.gridVisibility2.isChecked()
-                    else "#00000000"
+                    else "#FFFFFF00"
                 ),
             ],
             "grid_dasharray": [
