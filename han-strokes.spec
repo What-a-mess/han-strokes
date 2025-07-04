@@ -1,15 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_data_files, eval_statement, collect_submodules
+
 add_files = [
     ('resource', 'resource')
 ]
+
+hidden_imports = ['svglib']
 
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
     datas=add_files,
-    hiddenimports=[],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
